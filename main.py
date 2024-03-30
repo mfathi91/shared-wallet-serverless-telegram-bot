@@ -79,7 +79,7 @@ async def update_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     context.chat_data['note'] = '-' if note_input == '/skip' else note_input
 
     cd = context.chat_data
-    payment = Payment(cd['payer'], cd['amount'], cd['wallet'], "$", cd['note'])
+    payment = Payment(cd['payer'], cd['amount'], cd['wallet'], config.get_wallet_symbol(cd['wallet']), cd['note'])
     cd['payment'] = payment
     reply_keyboard = [['Yes', 'No']]
     await update.message.reply_text(
