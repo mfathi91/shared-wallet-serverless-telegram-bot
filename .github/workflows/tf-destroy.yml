@@ -1,0 +1,71 @@
+name: "Terraform destroy"
+
+on:
+  workflow_dispatch:
+    inputs:
+      user1:
+        description: "User1 name. Example: Julia"
+        required: true
+        type: string
+
+      user2:
+        description: "User2.Example: Jack"
+        required: true
+        type: string
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  terraform:
+    name: "Terraform destroy job"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout the repository to the runner
+        uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Create the deployment package
+        run: bash create_deployment_package.sh
+
+      - name: Create .tfvars file
+        id: gen_tfvars
+        run: |
+          python3.10 tfvars.py dummy ${{ github.event.inputs.user1 }},123 ${{ github.event.inputs.user2 }},321 dummy,d
+          USERNAME1=$(grep 'username1' terraform.tfvars | awk -F'"' '{print $2}')
+          USERNAME2=$(grep 'username2' terraform.tfvars | awk -F'"' '{print $2}')
+          echo "USERNAME1=${USERNAME1}" >> $GITHUB_ENV
+          echo "USERNAME2=${USERNAME2}" >> $GITHUB_ENV
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        id: fmt
+        run: cd terraform && terraform fmt terraform.tfvars && terraform fmt -check
+        continue-on-error: false
+
+      - name: Terraform init
+        id: init
+        run: |
+          cd terraform
+          terraform init \
+            -backend-config="bucket=s3b-tfstate-sw-${USERNAME1}-${USERNAME2}" \
+            -backend-config="dynamodb_table=table-tfstate-sw-${USERNAME1}-${USERNAME2}"
+
+      - name: Terraform validate
+        id: validate
+        run: cd terraform && terraform validate -no-color
+
+      - name: Terraform destroy
+        id: destroy
+        run: cd terraform && terraform destroy -auto-approve -no-color -lock-timeout=360s -var-file=terraform.tfvars

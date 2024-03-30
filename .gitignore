@@ -1,0 +1,9 @@
+.idea/
+venv/
+.terraform/
+__pycache__/
+terraform/remote-state/.terraform/
+terraform/remote-state/terraform.tfstate
+terraform/remote-state/terraform.tfstate.backup
+terraform/secrets.tfvars
+*.zip

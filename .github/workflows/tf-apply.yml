@@ -1,0 +1,102 @@
+name: "Terraform apply"
+
+on:
+  workflow_dispatch:
+    inputs:
+      bot_token:
+        description: "Telegram bot token"
+        required: true
+        type: string
+
+      user1:
+        description: "User1 name,chat_id.\nExample: Julia,123456789"
+        required: true
+        type: string
+
+      user2:
+        description: "User2 name,chat_id.\nExample: Jack,987654321"
+        required: true
+        type: string
+
+      wallet1:
+        description: "Wallet 1 currency,symbol.\nExample: Dollar,$"
+        required: true
+        type: string
+
+      wallet2:
+        description: "[Optional] Wallet 2 currency,symbol.\nExample: Euro,€"
+        required: false
+        type: string
+
+      wallet3:
+        description: "[Optional] Wallet 3 currency,symbol.\nExample: Toman,T"
+        required: false
+        type: string
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  terraform:
+    name: "Terraform apply job"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout the repository to the runner
+        uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip3.10 install -r requirements.txt
+
+      - name: Run unit tests
+        run: python3.10 -m unittest discover -s test -p "test_*.py"
+
+      - name: Create the deployment package
+        run: bash create_deployment_package.sh
+
+      - name: Create .tfvars file
+        id: gen_tfvars
+        run: |
+          python3.10 tfvars.py ${{ github.event.inputs.bot_token }} ${{ github.event.inputs.user1 }} ${{ github.event.inputs.user2 }} ${{ github.event.inputs.wallet1 }} ${{ github.event.inputs.wallet2 }} ${{ github.event.inputs.wallet3 }}
+          USERNAME1=$(grep 'username1' terraform.tfvars | awk -F'"' '{print $2}')
+          USERNAME2=$(grep 'username2' terraform.tfvars | awk -F'"' '{print $2}')
+          echo "USERNAME1=${USERNAME1}" >> $GITHUB_ENV
+          echo "USERNAME2=${USERNAME2}" >> $GITHUB_ENV
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        id: fmt
+        run: cd terraform && terraform fmt terraform.tfvars && terraform fmt -check
+        continue-on-error: false
+
+      - name: Terraform init
+        id: init
+        run: |
+          cd terraform
+          terraform init \
+            -backend-config="bucket=s3b-tfstate-sw-${USERNAME1}-${USERNAME2}" \
+            -backend-config="dynamodb_table=table-tfstate-sw-${USERNAME1}-${USERNAME2}"
+
+      - name: Terraform validate
+        id: validate
+        run: cd terraform && terraform validate -no-color
+
+      - name: Terraform plan
+        id: plan
+        run: cd terraform && terraform plan -no-color -lock-timeout=360s -var-file=terraform.tfvars
+        continue-on-error: false
+
+      - name: Terraform apply
+        id: apply
+        run: cd terraform && terraform apply -auto-approve -no-color -lock-timeout=360s -var-file=terraform.tfvars
