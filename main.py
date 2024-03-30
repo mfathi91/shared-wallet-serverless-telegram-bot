@@ -13,6 +13,7 @@ from telegram.ext import (
     MessageHandler
 )
 
+import num2persian
 from configuration import Configuration
 from database import Database
 from payment import Payment, PersistedPayment
@@ -92,7 +93,8 @@ async def update_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def update_end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.message.text == 'Yes':
         payment = context.chat_data['payment']
-        logging.info('User %s finalized /update command. Parameters: %s', update.message.from_user.first_name, payment.jsonify())
+        logging.info('User %s finalized /update command. Parameters: %s', update.message.from_user.first_name,
+                     payment.jsonify())
         database.add_payment(payment)
         await update.message.reply_text(
             get_formatted_balance(payment.wallet),
@@ -185,6 +187,10 @@ def get_formatted_balance(wallet: str) -> str:
     if balance:
         if balance.amount != '0':
             symbol = config.get_wallet_symbol(wallet)
+            if wallet == 'Toman':
+                return (f'{balance.creditor}: {balance.amount} {symbol}'
+                        f'\n{num2persian.to_persian(str(int(float(balance.amount))))}'
+                        f'\n{balance.debtor}: 0 {symbol}')
             return f'{balance.creditor}: {balance.amount} {symbol}\n{balance.debtor}: 0 {symbol}'
     return '0'
 
