@@ -8,7 +8,8 @@ terraform {
 
   backend "s3" {
     region = "eu-central-1"
-    key    = "sw.tfstate"
+    bucket= "s3-shared-wallet-tfstate"
+    dynamodb_table = "table-shared-wallet-tfstate"
   }
 }
 

@@ -85,8 +85,7 @@ jobs:
         run: |
           cd terraform
           terraform init \
-            -backend-config="bucket=s3b-tfstate-sw-${USERNAME1}-${USERNAME2}" \
-            -backend-config="dynamodb_table=table-tfstate-sw-${USERNAME1}-${USERNAME2}"
+            -backend-config="key=sw-${USERNAME1}-${USERNAME2}"
 
       - name: Terraform validate
         id: validate

@@ -2,16 +2,8 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-locals {
-  usernames = lower("${var.username1}-${var.username2}")
-}
-
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "s3b-tfstate-sw-${local.usernames}"
-
-  lifecycle {
-    prevent_destroy = true
-  }
+  bucket = "s3-shared-wallet-tfstate"
 }
 
 resource "aws_s3_bucket_versioning" "terraform_state" {
@@ -23,7 +15,7 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
 }
 
 resource "aws_dynamodb_table" "terraform_state_lock" {
-  name         = "table-tfstate-sw-${local.usernames}"
+  name         = "table-shared-wallet-tfstate"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
