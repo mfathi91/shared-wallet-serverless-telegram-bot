@@ -135,6 +135,6 @@ resource "aws_lambda_permission" "permission-api-sw" {
 }
 
 output "api_gateway_url" {
-  value = "Enter this value in your browser to set bot's webhook (replace your bot's token with <YOUR_BOT_TOKEN>): https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=${aws_apigatewayv2_api.api-gateway-sw.api_endpoint}"
+  value = aws_apigatewayv2_api.api-gateway-sw.api_endpoint
 }
 

@@ -78,4 +78,11 @@ jobs:
 
       - name: Terraform apply
         id: apply
-        run: cd terraform && terraform apply -auto-approve -no-color -lock-timeout=360s -var-file=terraform.tfvars
+        run: |
+          cd terraform
+          terraform apply -auto-approve -no-color -lock-timeout=360s -var-file=terraform.tfvars
+          echo "API_GATEWAY_URL=$(terraform output -raw api_gateway_url)" >> $GITHUB_ENV
+
+      - name: Set webhook of the bot
+        run: |
+          curl -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/setWebhook?url=${API_GATEWAY_URL}/webhook"
