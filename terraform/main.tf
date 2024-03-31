@@ -8,7 +8,7 @@ terraform {
 
   backend "s3" {
     region = "eu-central-1"
-    bucket= "s3-shared-wallet-tfstate"
+    bucket = "s3-shared-wallet-tfstate"
   }
 }
 
