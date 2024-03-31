@@ -10,6 +10,8 @@ on:
         type: choice
         options:
           - mahmoud_matin
+          - mahmoud_reyhoon
+          - mahmoud_baba
           - julia_jack
 
 env:
