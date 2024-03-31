@@ -1,4 +1,4 @@
-name: "Terraform Apply"
+name: "Create Wallet"
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   terraform:
-    name: "Terraform apply job"
+    name: "Create wallet (terraform apply)"
     environment: ${{ github.event.inputs.env_name }}
     runs-on: ubuntu-latest
     defaults:

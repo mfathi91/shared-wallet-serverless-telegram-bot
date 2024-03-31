@@ -1,17 +1,16 @@
-name: "Terraform Destroy"
+name: "Destroy Wallet"
 
 on:
   workflow_dispatch:
     inputs:
-      user1:
-        description: "User1 name. Example: Julia"
+      env_name:
+        description: "Environment"
+        default: "mahmoud_matin"
         required: true
-        type: string
-
-      user2:
-        description: "User2.Example: Jack"
-        required: true
-        type: string
+        type: choice
+        options:
+          - mahmoud_matin
+          - julia_jack
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -19,7 +18,8 @@ env:
 
 jobs:
   terraform:
-    name: "Terraform destroy job"
+    name: "Destroy wallet (terraform destroy)"
+    environment: ${{ github.event.inputs.env_name }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,7 +40,7 @@ jobs:
       - name: Create .tfvars file
         id: gen_tfvars
         run: |
-          python3.10 tfvars.py dummy ${{ github.event.inputs.user1 }},123 ${{ github.event.inputs.user2 }},321 dummy,d
+          python3.10 tfvars.py ${{ secrets.BOT_TOKEN }} ${{ secrets.USER1 }} ${{ secrets.USER2 }} ${{ secrets.WALLET1 }} ${{ secrets.WALLET2 }} ${{ secrets.WALLET3 }}
           USERNAME1=$(grep 'username1' terraform/terraform.tfvars | awk -F'"' '{print $2}')
           USERNAME2=$(grep 'username2' terraform/terraform.tfvars | awk -F'"' '{print $2}')
           echo "USERNAME1=${USERNAME1}" >> $GITHUB_ENV
