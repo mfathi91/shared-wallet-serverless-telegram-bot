@@ -53,7 +53,9 @@ class Database:
         user1, balance1 = self._configuration.get_usernames()[0], 0
         for payment in self.get_payments(wallet):
             balance1 = balance1 + float(payment.amount) if payment.payer == user1 else balance1 - float(payment.amount)
-        if balance1 >= 0:
+        if balance1 == 0:
+            return Balance(creditor=user1, debtor=self._configuration.get_other_username(user1), amount='0')
+        elif balance1 > 0:
             return Balance(creditor=user1, debtor=self._configuration.get_other_username(user1), amount=str(round(balance1, 2)).rstrip('0').rstrip('.'))
         else:
             return Balance(creditor=self._configuration.get_other_username(user1), debtor=user1, amount=str(round(-balance1, 2)).rstrip('0').rstrip('.'))
