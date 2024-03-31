@@ -41,8 +41,8 @@ jobs:
         id: gen_tfvars
         run: |
           python3.10 tfvars.py dummy ${{ github.event.inputs.user1 }},123 ${{ github.event.inputs.user2 }},321 dummy,d
-          USERNAME1=$(grep 'username1' terraform.tfvars | awk -F'"' '{print $2}')
-          USERNAME2=$(grep 'username2' terraform.tfvars | awk -F'"' '{print $2}')
+          USERNAME1=$(grep 'username1' terraform/terraform.tfvars | awk -F'"' '{print $2}')
+          USERNAME2=$(grep 'username2' terraform/terraform.tfvars | awk -F'"' '{print $2}')
           echo "USERNAME1=${USERNAME1}" >> $GITHUB_ENV
           echo "USERNAME2=${USERNAME2}" >> $GITHUB_ENV
 
