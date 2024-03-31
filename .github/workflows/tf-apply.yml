@@ -3,35 +3,14 @@ name: "Terraform Apply"
 on:
   workflow_dispatch:
     inputs:
-      bot_token:
-        description: "Telegram bot token"
+      env_name:
+        description: "Environment"
+        default: "mahmoud_matin"
         required: true
-        type: string
-
-      user1:
-        description: "User1 name,chat_id. Example: Julia,123456789"
-        required: true
-        type: string
-
-      user2:
-        description: "User2 name,chat_id. Example: Jack,987654321"
-        required: true
-        type: string
-
-      wallet1:
-        description: "Wallet 1 currency,symbol. Example: Dollar,$"
-        required: true
-        type: string
-
-      wallet2:
-        description: "[Optional] Wallet 2 currency,symbol. Example: Euro,€"
-        required: false
-        type: string
-
-      wallet3:
-        description: "[Optional] Wallet 3 currency,symbol. Example: Toman,T"
-        required: false
-        type: string
+        type: choice
+        options:
+          - mahmoud_matin
+          - julia_jack
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -40,6 +19,7 @@ env:
 jobs:
   terraform:
     name: "Terraform apply job"
+    environment: ${{ github.event.inputs.env_name }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -66,7 +46,7 @@ jobs:
       - name: Create .tfvars file
         id: gen_tfvars
         run: |
-          python3.10 tfvars.py ${{ github.event.inputs.bot_token }} ${{ github.event.inputs.user1 }} ${{ github.event.inputs.user2 }} ${{ github.event.inputs.wallet1 }} ${{ github.event.inputs.wallet2 }} ${{ github.event.inputs.wallet3 }}
+          python3.10 tfvars.py ${{ secrets.BOT_TOKEN }} ${{ secrets.USER1 }} ${{ secrets.USER2 }} ${{ secrets.WALLET1 }} ${{ secrets.WALLET2 }} ${{ secrets.WALLET3 }}
           USERNAME1=$(grep 'username1' terraform/terraform.tfvars | awk -F'"' '{print $2}')
           USERNAME2=$(grep 'username2' terraform/terraform.tfvars | awk -F'"' '{print $2}')
           echo "USERNAME1=${USERNAME1}" >> $GITHUB_ENV
