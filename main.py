@@ -32,6 +32,20 @@ WALLET, PAYER, NOTE, AMOUNT, CONFIRM = range(5)
 WALLET_BALANCE = 5
 
 
+# ------------------ start command --------------------
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    logging.info("User %s issued /start command", update.message.from_user.first_name)
+    await update.message.reply_text(
+        'Hi 👋, this is a simple bot to manage your shared expenses with another person.\n'
+        'update - update a wallet\n'
+        'status - show the status of a wallet\n'
+        'last5 - show the last 5 payments\n'
+        'history - get the full history as a file\n'
+        'cancel - cancel the current operation'
+    )
+    return ConversationHandler.END
+
+
 # ------------------- update conversation functions -------------------
 async def update_choose_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logging.info("User %s issued /update command", update.message.from_user.first_name)
@@ -203,6 +217,9 @@ async def main(event, context):
             'statusCode': 500,
             'body': 'event body not available'
         }
+
+    # Add command handler for the start command
+    application.add_handler(CommandHandler('start', start, filters.User(config.get_chat_ids())))
 
     # Add command handler to get the last 5 payments (regardless of the wallets)
     application.add_handler(CommandHandler('last5', last_5_payments, filters.User(config.get_chat_ids())))
