@@ -6,10 +6,15 @@ This bot does this accounting for you.
 This Telegram bot is serverless, meaning that it doesn't require a server to run it. Amazon AWS lambda functions 
 power the execution, hence it is extremely cost-effective (maybe even a few cents per months).
 
-![animation](https://github.com/mfathi91/shared-wallet-serverless-telegram-bot/assets/29010410/7c107c20-ebf2-410d-bfaf-3b8c18b028de)
+![til](supplements/animation.gif)
+
+## How does the bot work?
+Since there is no dedicated server involved, the bot functions with webhook. The address of the hook
+is an HTTP endpoint of the AWS lambda function.
+![alt text](supplements/overview.png)
 
 ## How to create your own bot
-The infrastructure of this bot is handled by Terraform. To create your own bot, follow these steps:
+The infrastructure of this bot is handled by Terraform and GitHub actions. To create your own bot, follow these steps:
 1. Make sure you have an AWS account.
 2. Create a new Telegram bot using the [BotFather](https://core.telegram.org/bots/tutorial).
 3. Clone this repository, and navigate to the `terraform/remote-state` directory.
