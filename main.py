@@ -36,7 +36,8 @@ WALLET_BALANCE = 5
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logging.info("User %s issued /start command", update.message.from_user.first_name)
     await update.message.reply_text(
-        'Hi 👋, this is a simple bot to manage your shared expenses with another person. These are the available commands:\n'
+        'Hi 👋, this is a simple bot to manage your shared expenses with another person. These are the available '
+        'commands:\n'
         '/update - update a wallet\n'
         '/status - show the status of a wallet\n'
         '/last5 - show the last 5 payments\n'
