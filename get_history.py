@@ -2,8 +2,26 @@ from configuration import Configuration
 from database import Database
 from payment import Payment
 
+from pydantic import BaseModel, ValidationError, field_validator
+from datetime import datetime as date
 import json
 import sys
+
+
+class Record(BaseModel):
+    payer: str
+    amount: str
+    wallet: str
+    note: str
+    datetime: str
+
+    @field_validator("datetime")
+    def validate_timestamp(cls, value):
+        try:
+            timestamp = date.fromisoformat(value)
+            return date.strftime(timestamp, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            raise ValidationError("Invalid timestamp format")
 
 
 def past_records(input_json: str) -> None:
@@ -16,11 +34,17 @@ def past_records(input_json: str) -> None:
         raise ValueError("The input data is not in json format.")
 
     for record in past_records_json.get("payments", []):
-        payer = record.get("payer", "")
-        amount = record.get("amount", "")
-        wallet = record.get("wallet", "")
-        note = record.get("note", "")
-        timestamp = record.get("datetime", "")
+        try:
+            record = Record(**record)
+        except ValidationError as e:
+            print(f"Invalid dictionary {record}: {e}")
+            continue
+
+        payer = record["payer"]
+        amount = record["amount"]
+        wallet = record["wallet"]
+        note = record["note"]
+        timestamp = record["datetime"]
         wallet_symbol = config.get_wallet_symbol(wallet)
 
         payment = Payment(
