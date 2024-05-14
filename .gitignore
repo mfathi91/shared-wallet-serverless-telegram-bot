@@ -1,5 +1,6 @@
 .idea/
 venv/
+.venv/
 .terraform/
 __pycache__/
 terraform/remote-state/.terraform/
