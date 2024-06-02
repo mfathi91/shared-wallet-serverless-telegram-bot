@@ -12,6 +12,7 @@ on:
           - mahmoud_matin
           - mahmoud_reyhoon
           - mahmoud_baba
+          - mahmoud_maman
           - julia_jack
 
 env:
