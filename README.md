@@ -31,6 +31,7 @@ export AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 - `WALLET1`: Currency and symbol of wallet1 separated by a comma. For example: `Dollar,$`.
 - `WALLET2`: [Optional] Currency and symbol of wallet2 separated by a comma. For example: `Euro,€`.
 - `WALLET3`: [Optional] Currency and symbol of wallet3 separated by a comma. For example: `Toman,T`.
+- `GEMINI_API_KEY`: [Optional] Google Gemini API key used by the `/smartupdate` command. If it is not set, the command is disabled and `/update` keeps working.
 
 7. Add the name of the environment that you added in `.github/workflows/tf-apply.yml` and `.github/workflows/tf-destroy.yml` files.
 8. Run the GitHub workflow to create the infrastructure on AWS.
@@ -38,4 +39,5 @@ export AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 
 ## Side notes
 - You may create as many wallets as you have defined in the environment!
+- `/smartupdate` lets you describe a payment in one free-text message (mainly Persian, e.g. `۲۵۰ هزار تومن من برای شام دادم`). The message is sent to the Gemini API (model `gemini-3.5-flash-lite` by default, configurable with the `GEMINI_MODEL` Lambda environment variable) to extract the wallet, payer, amount and note. The result is shown for confirmation before anything is saved. If required data is missing, the bot asks you to enter the message again. Requires the `GEMINI_API_KEY` secret.
 - Only the two users which were defined in the environment (based on their chat IDs) can add transactions to the wallet. When a user updates a wallet, the other user gets notified by the bot.

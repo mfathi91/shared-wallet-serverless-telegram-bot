@@ -14,6 +14,7 @@ from telegram.ext import (
 )
 
 import num2persian
+from ai_update import build_smart_update_handler
 from configuration import Configuration
 from database import Database
 from payment import Payment, PersistedPayment
@@ -39,6 +40,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         'Hi 👋, this is a simple bot to manage your shared expenses with another person. These are the available '
         'commands:\n'
         '/update - update a wallet\n'
+        '/smartupdate - update a wallet by describing the payment (AI)\n'
         '/status - show the status of a wallet\n'
         '/last5 - show the last 5 payments\n'
         '/history - get the full history as a file\n'
@@ -241,6 +243,8 @@ async def main(event, context):
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     ))
+
+    application.add_handler(build_smart_update_handler(config, update_end, cancel, CONFIRM))
 
     application.add_handler(ConversationHandler(
         entry_points=[CommandHandler('status', status_choose_wallet, filters.User(config.get_chat_ids()))],
