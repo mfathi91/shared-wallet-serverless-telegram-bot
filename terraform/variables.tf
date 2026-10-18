@@ -10,3 +10,9 @@ variable "username1" {
 variable "username2" {
   type = string
 }
+
+variable "gemini_api_key" {
+  type      = string
+  sensitive = true
+  default   = ""
+}

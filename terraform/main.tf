@@ -103,11 +103,14 @@ resource "aws_lambda_function" "fn-shared-wallet" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "main.lambda_handler"
   runtime          = "python3.10"
+  timeout          = 30
   depends_on       = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]
 
   environment {
     variables = {
-      JSON_CONFIG = var.json_config
+      JSON_CONFIG    = var.json_config
+      GEMINI_API_KEY = var.gemini_api_key
+      GEMINI_MODEL   = "gemini-3.5-flash-lite"
     }
   }
 }
